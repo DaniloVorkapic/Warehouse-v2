@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using WarehouseWeb.Contracts;
+using WarehouseWeb.Contracts.SupplierDto;
 using WarehouseWeb.Model;
 using WarehouseWeb.Repositories;
 
@@ -22,14 +23,14 @@ namespace WarehouseWeb.Services
 
         public async Task<Result> AddSupplier(SupplierContract sc)
         {
-            try
-            {
-                var statusCode = StatusCodes.Status200OK;
-                var result = Result.Create(null, 0);
+            
+                var statusCode = StatusCodes.Status500InternalServerError;
+                var errorMessage = "Greska";
+                var result = Result.Create(null, statusCode,errorMessage,0);
                 if (sc == null)
                 {
-                    statusCode = StatusCodes.Status400BadRequest;
-                    result = Result.Create(null, statusCode);
+                    result.StatusCode = StatusCodes.Status400BadRequest;
+                    result.ErrorMessage = "Ulazni Parametri losi";
                     return result;
                 }
                 var supplier = new Supplier
@@ -39,101 +40,106 @@ namespace WarehouseWeb.Services
                     Email = sc.Email,
                 };
 
-               var addSupplier =  await _supplierRepository.AddEntity(supplier);
-                result = Result.Create(addSupplier, statusCode);
-                _unitOfWork.commit();
-                return result;
-            }
-            catch (Exception)
+               var isAdded =  await _supplierRepository.AddEntity(supplier);
+                if(isAdded == false)
             {
-                var statusCode = StatusCodes.Status500InternalServerError;
-                var result = Result.Create(null, statusCode);
+                result.Value = isAdded;
+                result.StatusCode = StatusCodes.Status400BadRequest;
+                result.ErrorMessage = "Couldn't add supplier";
                 return result;
             }
+                _unitOfWork.commit();
+                result.StatusCode = StatusCodes.Status200OK;
+                result.ErrorMessage = null; 
+                result.Value = isAdded;
+                return result;
+            
         }
 
         public async Task<Result> DeleteSupplier(long id)
         {
-            try
-            {
-                var statusCode = StatusCodes.Status200OK;
-                var result = Result.Create(null, 0);
+           
+                var statusCode = StatusCodes.Status500InternalServerError;
+                var errorMessage = "Greska";
+                var result = Result.Create(null, statusCode,errorMessage,0);
                 var supplier = await _supplierRepository.GetById(id);
                 if (supplier == null)
                 {
-                    statusCode = StatusCodes.Status400BadRequest;
-                    result = Result.Create(null, statusCode);
+                    result.StatusCode = StatusCodes.Status400BadRequest;
+                    result.ErrorMessage = "Dobavljac nije pronadjen";
                     return result;
                 }
-               var deleteSupplier =  _supplierRepository.Delete(supplier);
+               var isDeleted =  await _supplierRepository.Delete(supplier);
+                if(isDeleted == false)
+            {
+                result.Value = isDeleted;
+                result.StatusCode = StatusCodes.Status400BadRequest;
+                result.ErrorMessage = "Coudn't delete supplier";
+                return result;
+            }
                 _unitOfWork.commit();
-                result = Result.Create(deleteSupplier, statusCode);
+                result.StatusCode = StatusCodes.Status200OK;
+                result.ErrorMessage = null;
+                result.Value = isDeleted;
                 return result;
 
-            }
-            catch (Exception)
-            {
-                var statusCode = StatusCodes.Status500InternalServerError;
-                var result = Result.Create(null, statusCode);
-                return result;
-            }
+            
         }
 
-        public async Task<Result> GetAllSuppliers()
+        public async Task<Result> GetAllSuppliers(InputSupplierDto input)
         {
-            try
-            {
+            
                 var statusCode = StatusCodes.Status200OK;
-                var allSuppliers = await _supplierRepository.GetAll();
-                var result = Result.Create(allSuppliers, statusCode);
+                var allSuppliers = _supplierRepository.GetQueryable<Supplier>()
+                    .Select(x => new GetAllSuppliersResponse(x.Id, x.Name, x.City))
+                    .Skip((input.pageNumber -1)* input.pageSize)
+                    .Take(input.pageSize)
+                    .ToList();
+                var result = Result.Create(allSuppliers, statusCode,null,0);
                 return result;
-            }
-            catch (Exception)
-            {
-                var statusCode = StatusCodes.Status500InternalServerError;
-                var result = Result.Create(null, statusCode);
-                return result;
-            }
+            
+          
 
         }
 
         public async Task<Result> GetSupplierById(long id)
         {
-            try
-            {
-                var statusCode = StatusCodes.Status200OK;
-                var result = Result.Create(null, 0);
-                var supplier = await _supplierRepository.GetById(id);
+            
+                var statusCode = StatusCodes.Status500InternalServerError;
+                var errorMessage = "Greska";
+                var result = Result.Create(null, statusCode,errorMessage,0);
+                var supplier =  _supplierRepository.GetQueryable<Supplier>()
+                    .Where(x => x.Id == id)
+                    .Select(x => new GetSupplierByIdResponse(x.Id, x.Name, x.City))
+                    .FirstOrDefault();
+
                 if (supplier == null)
                 {
-                    statusCode = StatusCodes.Status400BadRequest;
-                    result = Result.Create(null, statusCode);
+                    result.StatusCode = StatusCodes.Status400BadRequest;
+                    result.ErrorMessage = "Dobavljac nije pronadjen";
                     return result;
                 }
-
-                result = Result.Create(supplier, statusCode);
+                result.StatusCode = StatusCodes.Status200OK;
+                result.ErrorMessage = null;
+                result.Value = supplier;
+                
                 return result;
-            }
-            catch (Exception)
-            {
-                var statusCode = StatusCodes.Status500InternalServerError;
-                var result = Result.Create(null, statusCode);
-                return result;
-            }
+            
+          
         }
 
-        public async Task<Result> UpdateSupplier(long id, SupplierContract sc)
+        public async Task<Result> UpdateSupplier(SupplierContract sc)
         {
-            try
-            {
-                var statusCode = StatusCodes.Status200OK;
-                var result = Result.Create(null, 0);
+            
+                var statusCode = StatusCodes.Status500InternalServerError;
+                var errorMessage = "Greska";
+                var result = Result.Create(null, statusCode,errorMessage,0);
 
-                var supplier = await _supplierRepository.GetById(id);
+                var supplier = await _supplierRepository.GetById(sc.Id);
                 if (supplier == null)
                 {
-                    statusCode = StatusCodes.Status400BadRequest;
-                    result = Result.Create(null, statusCode);
+                    result.StatusCode = StatusCodes.Status400BadRequest;
+                    result.ErrorMessage = "Dobavljac nije pronadjen";
                     return result;
                 }
 
@@ -142,17 +148,19 @@ namespace WarehouseWeb.Services
                 supplier.City = sc.City;
                 supplier.Email = sc.Email;
 
-                var updateSupplier = await _supplierRepository.UpdateEntity(id, supplier);
-                _unitOfWork.commit();
-                result = Result.Create(updateSupplier, statusCode);
-                return result;
-            }
-            catch (Exception)
+                var isUpdated = await _supplierRepository.UpdateEntity( supplier);
+                if(isUpdated == false)
             {
-                var statusCode = StatusCodes.Status500InternalServerError;
-                var result = Result.Create(null, statusCode);
-                return result;
+                result.Value = isUpdated;
+                result.StatusCode = StatusCodes.Status400BadRequest;
+                result.ErrorMessage = "Couldn't uppdate supplier";
             }
+                _unitOfWork.commit();
+                result.StatusCode = StatusCodes.Status200OK;
+                result.ErrorMessage = null;
+                result.Value = isUpdated;
+                return result;
+           
         }
 
     }

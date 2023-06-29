@@ -160,8 +160,14 @@ namespace WarehouseWeb.Migrations
                     b.Property<DateTime?>("CreateDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<long?>("CreatedBy")
+                        .HasColumnType("bigint");
+
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<long?>("ModifyBy")
+                        .HasColumnType("bigint");
 
                     b.Property<DateTime?>("ModifyDate")
                         .HasColumnType("datetime2");
@@ -183,6 +189,12 @@ namespace WarehouseWeb.Migrations
 
                     b.Property<DateTime?>("CreateDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<long?>("CreatedBy")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("ModifyBy")
+                        .HasColumnType("bigint");
 
                     b.Property<DateTime?>("ModifyDate")
                         .HasColumnType("datetime2");
@@ -211,6 +223,12 @@ namespace WarehouseWeb.Migrations
                     b.Property<DateTime?>("CreateDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<long?>("CreatedBy")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("ModifyBy")
+                        .HasColumnType("bigint");
+
                     b.Property<DateTime?>("ModifyDate")
                         .HasColumnType("datetime2");
 
@@ -233,6 +251,12 @@ namespace WarehouseWeb.Migrations
 
                     b.Property<DateTime?>("CreateDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<long?>("CreatedBy")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("ModifyBy")
+                        .HasColumnType("bigint");
 
                     b.Property<DateTime?>("ModifyDate")
                         .HasColumnType("datetime2");
@@ -261,6 +285,9 @@ namespace WarehouseWeb.Migrations
                     b.Property<DateTime?>("CreateDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<long?>("CreatedBy")
+                        .HasColumnType("bigint");
+
                     b.Property<int>("CustomerType")
                         .HasColumnType("int");
 
@@ -272,6 +299,9 @@ namespace WarehouseWeb.Migrations
 
                     b.Property<string>("LastName")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<long?>("ModifyBy")
+                        .HasColumnType("bigint");
 
                     b.Property<DateTime?>("ModifyDate")
                         .HasColumnType("datetime2");
@@ -302,11 +332,17 @@ namespace WarehouseWeb.Migrations
                     b.Property<DateTime?>("CreateDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<long?>("CreatedBy")
+                        .HasColumnType("bigint");
+
                     b.Property<long>("CustomerId")
                         .HasColumnType("bigint");
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<long?>("ModifyBy")
+                        .HasColumnType("bigint");
 
                     b.Property<DateTime?>("ModifyDate")
                         .HasColumnType("datetime2");
@@ -333,16 +369,22 @@ namespace WarehouseWeb.Migrations
                     b.Property<DateTime?>("CreateDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<long?>("CreatedBy")
+                        .HasColumnType("bigint");
+
                     b.Property<long>("CustomerId")
                         .HasColumnType("bigint");
 
-                    b.Property<DateTime>("ExpireDate")
+                    b.Property<DateTime?>("ExpireDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<long?>("ModifyBy")
+                        .HasColumnType("bigint");
 
                     b.Property<DateTime?>("ModifyDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("OrderDate")
+                    b.Property<DateTime?>("OrderDate")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("Status")
@@ -368,14 +410,17 @@ namespace WarehouseWeb.Migrations
                     b.Property<DateTime?>("CreateDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<long?>("CreatedBy")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("ModifyBy")
+                        .HasColumnType("bigint");
+
                     b.Property<DateTime?>("ModifyDate")
                         .HasColumnType("datetime2");
 
                     b.Property<long>("OrderId")
                         .HasColumnType("bigint");
-
-                    b.Property<double>("PricePerUnit")
-                        .HasColumnType("float");
 
                     b.Property<long>("ProductId")
                         .HasColumnType("bigint");
@@ -405,18 +450,29 @@ namespace WarehouseWeb.Migrations
                     b.Property<DateTime?>("CreateDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<long?>("CreatedBy")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("ModifyBy")
+                        .HasColumnType("bigint");
 
                     b.Property<DateTime?>("ModifyDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<double>("Price")
                         .HasColumnType("float");
+
+                    b.Property<long?>("SupplierId")
+                        .HasColumnType("bigint");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ClassificationValuesId");
+
+                    b.HasIndex("SupplierId");
 
                     b.ToTable("Product");
                 });
@@ -431,8 +487,14 @@ namespace WarehouseWeb.Migrations
                     b.Property<DateTime?>("CreateDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<long?>("CreatedBy")
+                        .HasColumnType("bigint");
+
                     b.Property<string>("Desctirption")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<long?>("ModifyBy")
+                        .HasColumnType("bigint");
 
                     b.Property<DateTime?>("ModifyDate")
                         .HasColumnType("datetime2");
@@ -457,6 +519,12 @@ namespace WarehouseWeb.Migrations
 
                     b.Property<DateTime?>("CreateDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<long?>("CreatedBy")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("ModifyBy")
+                        .HasColumnType("bigint");
 
                     b.Property<DateTime?>("ModifyDate")
                         .HasColumnType("datetime2");
@@ -486,6 +554,12 @@ namespace WarehouseWeb.Migrations
                     b.Property<DateTime?>("CreateDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<long?>("CreatedBy")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("ModifyBy")
+                        .HasColumnType("bigint");
+
                     b.Property<DateTime?>("ModifyDate")
                         .HasColumnType("datetime2");
 
@@ -510,13 +584,19 @@ namespace WarehouseWeb.Migrations
                     b.Property<DateTime?>("CreateDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<long?>("CreatedBy")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("ModifyBy")
+                        .HasColumnType("bigint");
+
                     b.Property<DateTime?>("ModifyDate")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("StorageInputOutputType")
                         .HasColumnType("int");
 
-                    b.Property<long>("StorageItemId")
+                    b.Property<long?>("StorageItemId")
                         .HasColumnType("bigint");
 
                     b.HasKey("Id");
@@ -536,6 +616,12 @@ namespace WarehouseWeb.Migrations
                     b.Property<DateTime?>("CreateDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<long?>("CreatedBy")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("ModifyBy")
+                        .HasColumnType("bigint");
+
                     b.Property<DateTime?>("ModifyDate")
                         .HasColumnType("datetime2");
 
@@ -545,10 +631,7 @@ namespace WarehouseWeb.Migrations
                     b.Property<int>("Serialnumber")
                         .HasColumnType("int");
 
-                    b.Property<long>("StorageId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("SupplierId")
+                    b.Property<long?>("StorageId")
                         .HasColumnType("bigint");
 
                     b.HasKey("Id");
@@ -556,8 +639,6 @@ namespace WarehouseWeb.Migrations
                     b.HasIndex("ProductId");
 
                     b.HasIndex("StorageId");
-
-                    b.HasIndex("SupplierId");
 
                     b.ToTable("StorageItem");
                 });
@@ -575,8 +656,14 @@ namespace WarehouseWeb.Migrations
                     b.Property<DateTime?>("CreateDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<long?>("CreatedBy")
+                        .HasColumnType("bigint");
+
                     b.Property<string>("Email")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<long?>("ModifyBy")
+                        .HasColumnType("bigint");
 
                     b.Property<DateTime?>("ModifyDate")
                         .HasColumnType("datetime2");
@@ -786,7 +873,7 @@ namespace WarehouseWeb.Migrations
                             b1.Property<long>("Amount")
                                 .HasColumnType("bigint");
 
-                            b1.Property<long>("ClassificationValuesId")
+                            b1.Property<long>("MeasurementUnitId")
                                 .HasColumnType("bigint");
 
                             b1.HasKey("OrderItemId");
@@ -812,7 +899,14 @@ namespace WarehouseWeb.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("WarehouseWeb.Model.Supplier", "Supplier")
+                        .WithMany()
+                        .HasForeignKey("SupplierId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.Navigation("ClassificationValues");
+
+                    b.Navigation("Supplier");
                 });
 
             modelBuilder.Entity("WarehouseWeb.Model.RoleClaims", b =>
@@ -839,8 +933,7 @@ namespace WarehouseWeb.Migrations
                     b.HasOne("WarehouseWeb.Model.StorageItem", "StorageItem")
                         .WithMany("StorageInputOutputList")
                         .HasForeignKey("StorageItemId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.OwnsOne("WarehouseWeb.Model.Quantity", "Quantity", b1 =>
                         {
@@ -852,7 +945,7 @@ namespace WarehouseWeb.Migrations
                             b1.Property<long>("Amount")
                                 .HasColumnType("bigint");
 
-                            b1.Property<long>("ClassificationValuesId")
+                            b1.Property<long>("MeasurementUnitId")
                                 .HasColumnType("bigint");
 
                             b1.HasKey("StorageInputOutputId");
@@ -873,20 +966,13 @@ namespace WarehouseWeb.Migrations
                     b.HasOne("WarehouseWeb.Model.Product", "Product")
                         .WithMany()
                         .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("WarehouseWeb.Model.Storage", "Storage")
                         .WithMany("StorageItemList")
                         .HasForeignKey("StorageId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("WarehouseWeb.Model.Supplier", "Supplier")
-                        .WithMany()
-                        .HasForeignKey("SupplierId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.OwnsOne("WarehouseWeb.Model.Quantity", "Quantity", b1 =>
                         {
@@ -898,7 +984,7 @@ namespace WarehouseWeb.Migrations
                             b1.Property<long>("Amount")
                                 .HasColumnType("bigint");
 
-                            b1.Property<long>("ClassificationValuesId")
+                            b1.Property<long>("MeasurementUnitId")
                                 .HasColumnType("bigint");
 
                             b1.HasKey("StorageItemId");
@@ -914,8 +1000,6 @@ namespace WarehouseWeb.Migrations
                     b.Navigation("Quantity");
 
                     b.Navigation("Storage");
-
-                    b.Navigation("Supplier");
                 });
 
             modelBuilder.Entity("WarehouseWeb.Model.Claims", b =>

@@ -44,12 +44,6 @@ namespace WarehouseWeb.Data
                 .HasForeignKey(ki => ki.ClaimsId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<StorageInputOutput>()
-                .HasOne(s => s.StorageItem)
-                .WithMany(g => g.StorageInputOutputList)
-                .HasForeignKey(s => s.StorageItemId)
-                .OnDelete(DeleteBehavior.Restrict);
-
             modelBuilder.Entity<StorageItem>()
                 .HasOne(s => s.Storage)
                 .WithMany(g => g.StorageItemList)
@@ -57,12 +51,18 @@ namespace WarehouseWeb.Data
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<StorageItem>()
+                .HasMany(s => s.StorageInputOutputList)
+                .WithOne(g => g.StorageItem)
+                .HasForeignKey(s => s.StorageItemId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<StorageItem>()
                .HasOne(s => s.Product)
                .WithMany()
                .HasForeignKey(s => s.ProductId)
-               .OnDelete(DeleteBehavior.Restrict);
+               .OnDelete(DeleteBehavior.NoAction);
 
-            modelBuilder.Entity<StorageItem>()
+            modelBuilder.Entity<Product>()
                .HasOne(s => s.Supplier)
                .WithMany()
                .HasForeignKey(s => s.SupplierId)

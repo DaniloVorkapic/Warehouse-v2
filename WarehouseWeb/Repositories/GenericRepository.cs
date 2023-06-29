@@ -14,10 +14,10 @@ namespace WarehouseWeb.Repositories
         {
             _context = context;
         }
-        public async Task<T> AddEntity(T entity)
+        public async Task<bool> AddEntity(T entity)
         {
-            var result =  await _context.AddAsync(entity);   
-            return result.Entity;
+             await _context.AddAsync(entity);   
+            return true;
         }
         public async Task<T> GetById(long id)
         {
@@ -34,10 +34,10 @@ namespace WarehouseWeb.Repositories
             return await _context.Set<T>().ToListAsync();
     
         }
-        public async Task<T> UpdateEntity(long id, T entity)
+        public async Task<bool> UpdateEntity( T entity)
         {
-            var result = _context.Update(entity);
-            return result.Entity;
+              _context.Update(entity);
+            return  true;
         }
         public async void DeletAll(List<T> entities)
         {

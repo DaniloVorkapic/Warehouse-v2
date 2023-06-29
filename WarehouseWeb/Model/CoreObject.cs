@@ -12,6 +12,8 @@ namespace WarehouseWeb.Model
         public long Id { get; set; }
         public DateTime? CreateDate { get; set; }
         public DateTime? ModifyDate { get; set; }
+        public long? CreatedBy { get; set; }
+        public long? ModifyBy { get; set; }
 
     }
 }

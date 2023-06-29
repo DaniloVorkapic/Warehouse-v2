@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using WarehouseWeb.Contracts;
+using WarehouseWeb.Contracts.ClassificationValues;
+using WarehouseWeb.Contracts.ProductDto;
 using WarehouseWeb.Data;
 using WarehouseWeb.Model;
 using WarehouseWeb.Services;
@@ -25,11 +27,35 @@ namespace WarehouseWeb.Controllers
         }
 
         [HttpGet]
+        [Route("GetAllProducts")]
 
-        public async Task<ActionResult<Result<IEnumerable<Product>>>> GetAllProducts()
+        public async Task<ActionResult<Result<IEnumerable<Product>>>> GetAllProducts(int pageNumber, int pageSize, string search,string sortBy, string sortValue, [FromQuery] string classificationValuesIdList)
         {
-          Result r =  await _productService.GetAllProducts();
+            long[] listOfIds = ArrayHelper.ConvertToListOfIds(classificationValuesIdList);
+
+            InputProductDto input = new InputProductDto();
+            input.pageNumber = pageNumber;
+            input.pageSize = pageSize;
+            input.Search = search;
+            input.sortBy = sortBy;
+            input.sortValue = sortValue;
+            input.classificationValuesIdList = listOfIds;
+
+          Result r =  await _productService.GetAllProducts(input);
             return GetReturnResultByStatusCode(r);          
+        }
+
+        [HttpGet]
+        [Route("GetAllProductCategories")]
+
+            public async Task<ActionResult<IEnumerable<ClassificationValues>>> GetAllProductCategories(string search)
+            {
+            InputProductCategoriesDto input = new InputProductCategoriesDto();
+            input.Search = search;
+
+            Result r = await _productService.GetAllProductCategories(input);
+            return GetReturnResultByStatusCode(r);
+
         }
 
 
@@ -42,18 +68,20 @@ namespace WarehouseWeb.Controllers
         }
 
         [HttpPost]
+        [Route("api/controller/AddProduct")]
 
-        public async Task<ActionResult<Result<bool>>> AddProduc(ProductContract pc)
-        {
+        public async Task<ActionResult<Result<bool>>> AddProduct(ProductContract pc)
+                {
             Result r  = await _productService.AddProduct(pc);
             return GetReturnResultByStatusCode(r);
         }
 
-        [HttpPut("{id}")]
+        [HttpPut]
+        [Route("api/controller/UpdateProduct")]
 
-        public async Task<ActionResult<Result<bool>>> UpdateProduct(long id, ProductContract pc)
+        public async Task<ActionResult<Result<bool>>> UpdateProduct(ProductContract pc)
         {             
-            Result r = await _productService.UpdateProduct(id, pc);
+            Result r = await _productService.UpdateProduct(pc);
             return GetReturnResultByStatusCode(r);
         }
 

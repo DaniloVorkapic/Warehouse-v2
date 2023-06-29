@@ -10,6 +10,7 @@ namespace WarehouseWeb.Services
     {
         Task<Result> Login(LoginDto request);
         Task<Result> Register(RegistrationDTO request);
-        Task<Result> Logout(); 
+        Task<Result> Logout();
+        Task<Result> GetAllClaims(long customerId);
     }
 }

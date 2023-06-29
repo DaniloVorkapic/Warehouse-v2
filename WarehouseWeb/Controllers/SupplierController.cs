@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using WarehouseWeb.Contracts;
+using WarehouseWeb.Contracts.SupplierDto;
 using WarehouseWeb.Model;
 using WarehouseWeb.Services;
 
@@ -21,10 +22,16 @@ namespace WarehouseWeb.Controllers
         }
 
         [HttpGet]
-
-        public async Task<ActionResult<Result<IEnumerable<Supplier>>>> GetAllSuppliers()
+        [Route("api/controller/GetAllSuppliers")]
+        public async Task<ActionResult<Result<IEnumerable<Supplier>>>> GetAllSuppliers(int pageNumber, int pageSize)
         {
-            Result r = await _supplierService.GetAllSuppliers();
+            InputSupplierDto input = new InputSupplierDto
+            {
+                pageNumber = pageNumber,
+                pageSize = pageSize
+            };
+
+            Result r = await _supplierService.GetAllSuppliers(input);
             return GetReturnResultByStatusCode(r);
         }
 
@@ -37,6 +44,7 @@ namespace WarehouseWeb.Controllers
         }
 
         [HttpPost]
+        [Route("api/controller/AddSuplier")]
 
         public async Task<ActionResult<Result<bool>>> AddSuplier(SupplierContract sc)
         {          
@@ -44,11 +52,12 @@ namespace WarehouseWeb.Controllers
             return GetReturnResultByStatusCode(r);  
         }
 
-        [HttpPut("{id}")]
+        [HttpPut]
+        [Route("api/controller/UpdateSupplier")]
 
-        public async Task<ActionResult<Result<bool>>> UpdateSupplier(long id, SupplierContract sc)
+        public async Task<ActionResult<Result<bool>>> UpdateSupplier( SupplierContract sc)
         { 
-            Result r = await _supplierService.UpdateSupplier(id, sc);
+            Result r = await _supplierService.UpdateSupplier( sc);
             return GetReturnResultByStatusCode(r);
         }
 

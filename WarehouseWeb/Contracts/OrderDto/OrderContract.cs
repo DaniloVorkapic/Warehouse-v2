@@ -9,11 +9,12 @@ namespace WarehouseWeb.Contracts
 {
     public class OrderContract
     {
-       // public long Id { get; set; }
+        public long Id { get; set; }
+        public double TotalPrice { get; set; }
         public Status Status { get; set; }
         public long CustomerId { get; set; }
-        public DateTime CreateDate { get; set; }
-        public List<OrderItemContract> OrderItemList { get; set; }
+        
+      //  public List<OrderItemContract> OrderItemList { get; set; }
 
     }
 }

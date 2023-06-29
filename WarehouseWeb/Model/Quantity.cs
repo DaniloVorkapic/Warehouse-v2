@@ -8,6 +8,6 @@ namespace WarehouseWeb.Model
     public class Quantity
     {
         public long Amount { get; set; }
-        public long ClassificationValuesId { get; set; }
+        public long MeasurementUnitId { get; set; }
     }
 }

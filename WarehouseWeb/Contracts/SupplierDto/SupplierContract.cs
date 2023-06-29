@@ -10,8 +10,8 @@ namespace WarehouseWeb.Contracts
         public long Id { get; set; }
         public string Name { get; set; }
         public string City { get; set; }
-        public DateTime CreateDate { get; set; }
-        public DateTime ModifyDate { get; set; }
+       // public DateTime CreateDate { get; set; }
+      //  public DateTime ModifyDate { get; set; }
         public string Email { get; set; }
     }
 }

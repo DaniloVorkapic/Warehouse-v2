@@ -8,8 +8,10 @@ namespace WarehouseWeb.Model
 {
     public class Product:CoreObject
     {
-        public string Description { get; set; }
+        public string Name { get; set; }
         public double Price { get; set; }
+        public long? SupplierId { get; set; }
+        public Supplier Supplier { get; set; }
         public long ClassificationValuesId { get; set; }
         public ClassificationValues? ClassificationValues { get; set; }
     }

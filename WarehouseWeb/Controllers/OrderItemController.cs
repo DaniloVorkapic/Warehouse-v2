@@ -53,10 +53,10 @@ namespace WarehouseWeb.Controllers
 
         [HttpPut("{id}")]
 
-        public async Task<ActionResult<Result<bool>>> UpdateOrderItem(long id,OrderItemContract oi)
+        public async Task<ActionResult<Result<bool>>> UpdateOrderItem(OrderItemContract oi)
         {
             
-            Result r = await _orderItemService.UpdateOrderItem(id, oi);
+            Result r = await _orderItemService.UpdateOrderItem(oi);
             return GetReturnResultByStatusCode(r);
         }
 

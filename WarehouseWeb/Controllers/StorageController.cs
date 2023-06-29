@@ -21,6 +21,7 @@ namespace WarehouseWeb.Controllers
         }
 
         [HttpGet]
+        [Route("api/controller/GetAllStorages")]
 
         public async Task<ActionResult<Result<IEnumerable<Storage>>>> GetAllStorages()
         {
@@ -35,8 +36,24 @@ namespace WarehouseWeb.Controllers
             Result r = await _storageService.GetStorageById(id);
             return GetReturnResultByStatusCode(r);
         }
-       
+        [HttpGet]
+        [Route("api/controller/GetStorageItemById")]
+        public async Task<ActionResult<Result<Storage>>> GetStorageItemById(long id)
+        {
+            Result r = await _storageService.GetStorageitemById(id);
+            return GetReturnResultByStatusCode(r);
+        }
+        [HttpGet]
+        [Route("api/controller/GetAllStorageItemsByStorageId")]
+        public async Task<ActionResult<Result<Storage>>> GetAllStorageItemsByStorageId(long id)
+        {
+            Result r = await _storageService.GetAllStorageItemsByStorageId(id);
+            return GetReturnResultByStatusCode(r);
+        }
+
+
         [HttpPost]
+        [Route("api/controller/AddStorage")]
 
         public async Task<ActionResult<Result<bool>>> AddStorage(StorageContract storageContract)
         {
@@ -44,26 +61,29 @@ namespace WarehouseWeb.Controllers
             return GetReturnResultByStatusCode(r);
         }
 
-        [HttpPost("AddStorageItem")]
-        public async Task<ActionResult<Result<bool>>> AddStorageItem([FromBody] StorageItemContract sic)
+        [HttpPost]
+        [Route("api/controller/AddStorageItem")]
+        public async Task<ActionResult<Result<bool>>> AddStorageItem(StorageItemContract sic)
         {
             Result r = await _storageService.AddStorageItem(sic);
             return GetReturnResultByStatusCode(r);
         }
-        //[HttpPut("{storageId}")]
+        [HttpPut]
+        [Route("api/controller/UpdateStorage")]
 
-        //public async Task<ActionResult<Result<bool>>> UpdateStorage(long storageId, StorageContract storageContract)
-        //{
-
-        //    Result r = await _storageService.UpdateStorage(storageId, storageContract);
-        //    return GetReturnResultByStatusCode(r);
-        //}
-
-        [HttpPut("{storageItemId}")]
-
-        public async Task<ActionResult<Result<bool>>> UpdateStorageItem(long storageItemId, StorageItemContract storageItemContract)
+        public async Task<ActionResult<Result<bool>>> UpdateStorage(StorageContract storageContract)
         {
-            Result r = await _storageService.UpdateStorageItem(storageItemId, storageItemContract);
+
+            Result r = await _storageService.UpdateStorage(storageContract);
+            return GetReturnResultByStatusCode(r);
+        }
+
+        [HttpPut]
+        [Route("api/controller/UpdateStorageItem")]
+
+        public async Task<ActionResult<Result<bool>>> UpdateStorageItem( StorageItemContract storageItemContract)
+        {
+            Result r = await _storageService.UpdateStorageItem( storageItemContract);
             return GetReturnResultByStatusCode(r);
         }
 
@@ -73,6 +93,15 @@ namespace WarehouseWeb.Controllers
         {
             // var orderItemToDelete =  _orderItemService.GetOrderItemById(id);
             Result r = await _storageService.DeleteStorage(id);
+            return GetReturnResultByStatusCode(r);
+        }
+        [HttpDelete]
+        [Route("api/controller/DeleteStorageItem")]
+
+        public async Task<ActionResult<Result<bool>>> DeleteStorageItem(long id)
+        {
+            // var orderItemToDelete =  _orderItemService.GetOrderItemById(id);
+            Result r = await _storageService.DeleteStorageItem(id);
             return GetReturnResultByStatusCode(r);
         }
 

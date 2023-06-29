@@ -8,8 +8,6 @@ using WarehouseWeb.Contracts;
 
 namespace WarehouseWeb.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
     public class BaseController : ControllerBase
 
     {

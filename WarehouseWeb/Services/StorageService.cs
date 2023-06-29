@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using WarehouseWeb.Contracts;
+using WarehouseWeb.Contracts.StorageDto;
 using WarehouseWeb.Model;
 using WarehouseWeb.Repositories;
 
@@ -26,15 +28,15 @@ namespace WarehouseWeb.Services
 
         public async Task<Result> AddStorage(StorageContract sc)
         {
-            try
-            {
-                var statusCode = StatusCodes.Status200OK;
-                var result = Result.Create(null, 0);
+            
+                var statusCode = StatusCodes.Status500InternalServerError;
+                var errorMessage = "Greska";
+                var result = Result.Create(null, statusCode,errorMessage,0);
 
                 if (sc == null)
                 {
-                    statusCode = StatusCodes.Status400BadRequest;
-                    result = Result.Create(null, statusCode);
+                    result.StatusCode = StatusCodes.Status400BadRequest;
+                    result.ErrorMessage = "Netacni ulazni parametri";
                     return result;
                 }                
 
@@ -46,68 +48,124 @@ namespace WarehouseWeb.Services
                    // StorageItemList = storageItemList
                 };
 
-                var addedStorage = await _storageRepository.AddEntity(storage);
-                _unitOfWOrk.commit();
-                result = Result.Create(addedStorage.Id, statusCode);
-                return result;
-            }
-            catch (Exception)
+                var isAdded = await _storageRepository.AddEntity(storage);
+                    if(isAdded == false)
             {
-                var statusCode = StatusCodes.Status500InternalServerError;
-                var result = Result.Create(null, statusCode);
+                result.Value = isAdded;
+                result.StatusCode = StatusCodes.Status400BadRequest;
+                result.ErrorMessage = "Coudn't add a stoage";
                 return result;
             }
+
+                result.StatusCode = StatusCodes.Status200OK;
+                result.ErrorMessage = null;
+                result.Value = isAdded;
+                _unitOfWOrk.commit();
+                return result;
+           
+            
         }
 
         public async Task<Result> AddStorageItem(StorageItemContract storageItemContract)
         {
-            try
-            {
-                var statusCode = StatusCodes.Status200OK;
-                var result = Result.Create(null, 0);
-
-                if (storageItemContract == null)
-                {
-                    statusCode = StatusCodes.Status400BadRequest;
-                    result = Result.Create(null, statusCode);
-                    return result;
-                }
-
-                var storageInpoutOutput = PrepareStorageInputOutput(storageItemContract);
-                List<StorageInputOutput> lista = new List<StorageInputOutput>();
-                lista.Add(storageInpoutOutput);
-                var storageItem = new StorageItem
-                {
-                    StorageId = storageItemContract.StorageId,
-                    Serialnumber = storageItemContract.SerialNumber,
-                    ProductId = storageItemContract.ProductId,
-                    SupplierId = storageItemContract.SupplierId,
-                    Quantity = storageItemContract.Quantity,
-                    StorageInputOutputList = lista 
-                };
-                
-                var addedStorageItem = await _storageItemRepository.AddEntity(storageItem);
-                _unitOfWOrk.commit();
-                result = Result.Create(addedStorageItem, statusCode);
-                return result;
-            }
-            catch (Exception)
-            {
+           
                 var statusCode = StatusCodes.Status500InternalServerError;
-                var result = Result.Create(null, statusCode);
+                var errorMessage = "Greska";
+                var result = Result.Create(null,statusCode,errorMessage,0);
+
+            if (storageItemContract == null)
+            {
+                result.StatusCode = StatusCodes.Status400BadRequest;
+                result.ErrorMessage = "Losi ulazni parametri";
                 return result;
             }
+            if(storageItemContract.StorageId < 1)
+            {
+                result.StatusCode = StatusCodes.Status400BadRequest;
+                result.ErrorMessage = "Ne postoji dati storage";
+                return result;
+            }
+
+            var findStorageItem = _storageItemRepository.GetQueryable<StorageItem>()
+                   .Any(x => x.StorageId == storageItemContract.StorageId &&  x.ProductId == storageItemContract.ProductId);
+                   
+
+            
+            if(findStorageItem == true)
+            {
+                result.ErrorMessage = "Postoji dati prozizvod za dati storage, mozete promeniti kolicinu";
+                result.StatusCode = StatusCodes.Status200OK;
+                result.Value = null;
+                return result;
+                //findStorageItem.Quantity.Amount += storageItemContract.Quantity.Amount;
+                //_unitOfWOrk.commit();
+                //result.StatusCode = StatusCodes.Status200OK;
+                //result.Value = true;
+                //result.ErrorMessage = null;
+                //return result;
+            }
+
+                var storageInpoutOutputList = AddStorageInputOutputList(storageItemContract);
+                
+                var storageItem = new StorageItem();
+
+
+                storageItem.StorageId = storageItemContract.StorageId;
+                storageItem.ProductId = storageItemContract.ProductId;
+                storageItem.Quantity = new Quantity() {
+
+                    Amount = storageItemContract.Quantity.Amount,
+                    MeasurementUnitId = storageItemContract.Quantity.MeasurementUnitId
+
+                };
+                storageItem.StorageInputOutputList = storageInpoutOutputList;
+                
+                
+                var isAdded = await _storageItemRepository.AddEntity(storageItem);
+                if(isAdded == false)
+            {
+                result.Value = isAdded;
+                result.StatusCode = StatusCodes.Status400BadRequest;
+                result.ErrorMessage = "Couldn't add a storageItem";
+            }
+                
+                _unitOfWOrk.commit();
+                result.StatusCode = StatusCodes.Status200OK;
+                result.Value = isAdded;
+                result.ErrorMessage = null;
+            return result;
+           
         }
 
-        public StorageInputOutput PrepareStorageInputOutput(StorageItemContract storageItemContract)
+        public List<StorageInputOutput> AddStorageInputOutputList(StorageItemContract storageItemContract)
         {
-                var storageInputOutput = new StorageInputOutput
-                {
-                    StorageInputOutputType = StorageInputOutputType.Input,
-                    Quantity = storageItemContract.Quantity
-               };
-             
-              return storageInputOutput;
+            List<StorageInputOutput> lista = new List<StorageInputOutput>();
+            
+            var storageInputOutput = new StorageInputOutput()
+            {
+
+                StorageInputOutputType = StorageInputOutputType.Input,
+                Quantity = storageItemContract.Quantity
+            };
+            lista.Add(storageInputOutput);
+
+            return lista;
+
+        }
+
+        public StorageInputOutput AddStorageInput(StorageItemContract storageItemContract)
+        {
+            var storageInputOutput = new StorageInputOutput();
+
+
+            storageInputOutput.StorageInputOutputType = StorageInputOutputType.Input;
+            storageInputOutput.Quantity = new Quantity
+            {
+                Amount = storageItemContract.Quantity.Amount,
+                MeasurementUnitId = storageItemContract.Quantity.MeasurementUnitId
+            };
+           
+            return storageInputOutput;
 
         }
         
@@ -115,169 +173,230 @@ namespace WarehouseWeb.Services
 
         public async Task<Result> DeleteStorage(long id)
         {
-            try
-            {
-                var statusCode = StatusCodes.Status200OK;
-                var result = Result.Create(null, 0);
+            
+                var statusCode = StatusCodes.Status500InternalServerError;
+                var errorMessage = "Greska";
+                var result = Result.Create(null, statusCode,errorMessage,0);
                 var storage = await _storageRepository.GetById(id);
 
                 if(storage == null)
                 {
-                    statusCode = StatusCodes.Status400BadRequest;
-                    result = Result.Create(null, statusCode);
+                    result.StatusCode = StatusCodes.Status400BadRequest;
+                    result.ErrorMessage = "Ne postoji storage";
                     return result;
                 }
 
-                var deletedStorage = await _storageRepository.Delete(storage);
+                var isDeleted = await _storageRepository.Delete(storage);
+            if(isDeleted == false)
+            {
+                result.Value = isDeleted;
+                result.StatusCode = StatusCodes.Status400BadRequest;
+                result.ErrorMessage = "Nije Izbrisan storage";
+                return result;
+            }
                 _unitOfWOrk.commit();
-                result = Result.Create(deletedStorage, statusCode);
+                result.StatusCode = StatusCodes.Status200OK;
+                result.ErrorMessage = null;
+                result.Value = isDeleted;
+                
                 return result;
 
-            }
-            catch (Exception)
-            {
-                var statusCode = StatusCodes.Status500InternalServerError;
-                var result = Result.Create(null, statusCode);
-                return result;
-            }
+            
         }
 
 
         public async Task<Result> GetAllStorages()
         {
-            try
-            {
+           
                 var statusCode = StatusCodes.Status200OK;
-                var allStorages = await _storageRepository.GetAll();
-                var result = Result.Create(allStorages, statusCode);
+                var allStorages = _storageRepository.GetQueryable<Storage>()
+                    .AsNoTracking()
+                    .Select(x => new GetAllStoragesResponse(x.Id, x.Name, x.City)).ToList();
+                var result = Result.Create(allStorages, statusCode,null,0);
 
                 return result;
 
-            }
-            catch (Exception)
-            {
-                var statusCode = StatusCodes.Status500InternalServerError;
-                var result = Result.Create(null, statusCode);
-                return result;
-            } 
+            
         }
 
         public async Task<Result> GetStorageById(long id)
         {
-            try
-            {
-                var statusCode = StatusCodes.Status200OK;
-                var result = Result.Create(null, 0);
+            
+                var statusCode = StatusCodes.Status500InternalServerError;
+                var errorMessage = "Greska";
+                var result = Result.Create(null, statusCode,errorMessage,0);
 
-                var storage = await _storageRepository.GetById(id);
+                var storage =  _storageRepository.GetQueryable<Storage>()
+                    .AsNoTracking()
+                    .Where(x => x.Id == id)
+                    .Select(x => new GetStorageByIdResponse(x.Id, x.Name, x.City))
+                    .FirstOrDefault();
+                    
 
                 if(storage == null)
                 {
-                    statusCode = StatusCodes.Status400BadRequest;
-                    result = Result.Create(null, statusCode);
+                    result.StatusCode = StatusCodes.Status400BadRequest;
+                    result.ErrorMessage = "Ne postoji storage";
                     return result;
                 }
-
-                result = Result.Create(storage, statusCode);
+                result.StatusCode = StatusCodes.Status200OK;
+                result.Value = storage;
+                result.ErrorMessage = null;
                 return result;
-            }
-            catch (Exception)
-            {
-                var statusCode = StatusCodes.Status500InternalServerError;
-                var result = Result.Create(null, statusCode);
-                return result;
-            }
+            
         }
-        public async Task<Result> UpdateStorage(long storageId,StorageContract storageContract)
+
+        public async Task<Result> GetStorageitemById(long id)
         {
-            try
+            var statusCode = StatusCodes.Status500InternalServerError;
+            var errorMessage = "Greska";
+            var result = Result.Create(null, statusCode, errorMessage,0);
+
+            var storageItem = _storageItemRepository.GetQueryable<StorageItem>()
+                .AsNoTracking()
+                .Where(x => x.Id == id)
+                .Select(x => new GetStorageItemByIdResponse(x.Id, x.StorageId, x.ProductId))
+                .FirstOrDefault();
+
+
+            if (storageItem == null)
             {
-                var statusCode = StatusCodes.Status200OK;
-                var result = Result.Create(null, 0);
-                var storage = await _storageRepository.GetById(storageId);
+                result.StatusCode = StatusCodes.Status400BadRequest;
+                result.ErrorMessage = "Ne postoji storage";
+                return result;
+            }
+            result.StatusCode = StatusCodes.Status200OK;
+            result.Value = storageItem; 
+            result.ErrorMessage = null;
+            return result;
+
+        }
+        public async Task<Result> GetAllStorageItemsByStorageId(long storageId)
+        {
+            var statusCode = StatusCodes.Status500InternalServerError;
+            var errorMessage = "Greska";
+            var result = Result.Create(null, statusCode, errorMessage,0);
+
+            var storage = GetStorageById(storageId);
+
+            if (storageId < 1)
+            {
+                result.StatusCode = StatusCodes.Status400BadRequest;
+                result.ErrorMessage = "Los storagId";
+                return result;
+
+            }
+            if (storage == null)
+            {
+                result.StatusCode = StatusCodes.Status400BadRequest;
+                result.ErrorMessage = "Storage ne postoji";
+                return result;
+            }
+            var allStorageItems = _storageItemRepository.GetQueryable<StorageItem>()
+               .AsNoTracking()
+              .Where(x => x.StorageId == storageId)
+               .Select(x => new GetStorageItemByIdResponse(x.Id, x.StorageId, x.ProductId)).ToList();
+
+            result.Value = allStorageItems;
+            result.StatusCode = StatusCodes.Status200OK;
+            result.ErrorMessage = null;
+            return result;
+
+        }
+        public async Task<Result> UpdateStorage(StorageContract storageContract)
+        {
+           
+                var statusCode = StatusCodes.Status500InternalServerError;
+                var errorMessage = "Greska";
+                var result = Result.Create(null, statusCode,errorMessage,0);
+                var storage = await _storageRepository.GetById(storageContract.Id);
 
                 if(storage == null)
                 {
-                    statusCode = StatusCodes.Status400BadRequest;
-                    result = Result.Create(null, statusCode);
+                    result.StatusCode = StatusCodes.Status400BadRequest;
+                    result.ErrorMessage = "Nije pronadjen storage";
                     return result;
 
                 }
 
-                var createDate = storage.CreateDate;
-                await _storageRepository.Delete(storage);
+                storage.Serialnumber = storageContract.SerialNumber;
+                storage.Name = storageContract.Name;
+                storage.City = storageContract.City;
 
-                var newStorage = new Storage
-                {
-                    Serialnumber = storageContract.SerialNumber,
-                    Name = storageContract.Name,
-                    City = storageContract.City,
-                };
 
-                var updatedStorage = _storageRepository.UpdateEntity(storageId, newStorage);
-                _unitOfWOrk.commit();
-                result = Result.Create(updatedStorage, statusCode);
-                return result;
-            }
-            catch (Exception)
+                var IsUpdated =  await _storageRepository.UpdateEntity(storage);
+                
+                if(IsUpdated == false)
             {
-                var statusCode = StatusCodes.Status500InternalServerError;
-                var result = Result.Create(null, statusCode);
+                result.Value = IsUpdated;
+                result.StatusCode = StatusCodes.Status400BadRequest;
+                result.ErrorMessage = "Coudn't update storage";
                 return result;
+
             }
+
+                _unitOfWOrk.commit();
+
+                result.Value = IsUpdated;
+                result.ErrorMessage = null;
+                result.StatusCode = StatusCodes.Status200OK;
+                return result;
+            
         }
       
-        public async Task<Result> UpdateStorageItem(long storageItemId, StorageItemContract storageItemContract)
+        public async Task<Result> UpdateStorageItem(StorageItemContract storageItemContract)
         {
-            try
-            {
-                var statusCode = StatusCodes.Status200OK;
-                var result = Result.Create(null, 0);
+            
+                var statusCode = StatusCodes.Status500InternalServerError;
+                var errorMessage = "Greska";
+                var result = Result.Create(null, statusCode,errorMessage,0);
 
-                var storageItem = await _storageItemRepository.GetById(storageItemId);
+                var storageItem = _storageItemRepository.GetQueryable<StorageItem>()
+                    .Include(x=> x.StorageInputOutputList) 
+                    .Where(x => x.Id == storageItemContract.Id)                 
+                    .FirstOrDefault();
 
-                if(storageItem == null)
+                if( storageItem == null)
                 {
-                    statusCode = StatusCodes.Status400BadRequest;
-                    result = Result.Create(null, statusCode);
+                    result.StatusCode = StatusCodes.Status400BadRequest;
+                    result.ErrorMessage = "Nije pronadjen item";
                         return result;
                 }
-                var storageInputOutputList = GetAllStorageInputOutputsByStorageItemId(storageItemId);
-                _storageInputOutputRepository.DeletAll(storageInputOutputList);
-                //      var storageItems = GetAllStorageItemsByStorageId(storage.Id);
-                var createDate = storageItem.CreateDate;
-                var storageId = storageItem.StorageId;
-                await  _storageItemRepository.Delete(storageItem);
 
-                //  List<StorageItem> storageItemList = PrepareStorageItem(sc.StorageItemList);
-                var storageInpoutOutput = PrepareStorageInputOutput(storageItemContract);
-                List<StorageInputOutput> lista = new List<StorageInputOutput>();
-                lista.Add(storageInpoutOutput);
-                var newStorageItem = new StorageItem
+               storageItem.StorageInputOutputList.RemoveAll(x => x.StorageInputOutputType == StorageInputOutputType.Input);
+
+
+                var newStorageInput = AddStorageInput(storageItemContract);
+
+
+                storageItem.StorageId = storageItemContract.StorageId;
+                storageItem.ProductId = storageItemContract.ProductId;
+                storageItem.Quantity = new Quantity()
                 {
-                    Id = storageItemId,
-                    StorageId = storageItem.StorageId,
-                    Serialnumber = storageItemContract.SerialNumber,
-                    ProductId = storageItemContract.ProductId,
-                    SupplierId = storageItemContract.SupplierId,
-                    Quantity = storageItemContract.Quantity,
-                    CreateDate = createDate,
-                    StorageInputOutputList = lista
+                    Amount = storageItemContract.Quantity.Amount,
+                    MeasurementUnitId = storageItemContract.Quantity.MeasurementUnitId
 
                 };
+                storageItem.StorageInputOutputList.Add(newStorageInput);
 
-                var updatedStorageItem = await _storageItemRepository.UpdateEntity(storageItemId,newStorageItem);
+                
+
+                var isUpdated = await _storageItemRepository.UpdateEntity(storageItem);
+                  if(isUpdated == false)
+                     {
+                result.Value = isUpdated;
+                result.StatusCode = StatusCodes.Status400BadRequest;
+                result.ErrorMessage = "Couldn'y update storage item";
+                return result;
+                      }
+
                 _unitOfWOrk.commit();
-                result = Result.Create(updatedStorageItem.Id, statusCode);
+                result.Value = isUpdated;
+                result.ErrorMessage = null;
+                result.StatusCode = StatusCodes.Status200OK;
                 return result;
 
-            }
-            catch (Exception)
-            {
-                var statusCode = StatusCodes.Status500InternalServerError;
-                var result = Result.Create(null, statusCode);
-                return result; 
-            }
+            
         }
         public List<StorageInputOutput> GetAllStorageInputOutputsByStorageItemId(long storageItemId)
         {
@@ -288,5 +407,46 @@ namespace WarehouseWeb.Services
 
             return storageInputOutputList;
         }
+
+
+            
+
+          //  var statusCode = StatusCodes.Status200OK;
+           
+
+        
+
+        public async Task<Result> DeleteStorageItem(long id)
+        {
+            var statusCode = StatusCodes.Status500InternalServerError;
+            var errorMessage = "Greska";
+            var result = Result.Create(null, statusCode, errorMessage,0);
+            var storageItem = await _storageItemRepository.GetById(id);
+
+            if (storageItem == null)
+            {
+                result.StatusCode = StatusCodes.Status400BadRequest;
+                result.ErrorMessage = "Ne postoji storage item";
+                return result;
+            }
+
+            var isDeleted = await _storageItemRepository.Delete(storageItem);
+            if (isDeleted == false)
+            {
+                result.Value = isDeleted;
+                result.StatusCode = StatusCodes.Status400BadRequest;
+                result.ErrorMessage = "Nije Izbrisan storage item";
+                return result;
+            }
+            _unitOfWOrk.commit();
+            result.StatusCode = StatusCodes.Status200OK;
+            result.ErrorMessage = null;
+            result.Value = isDeleted;
+
+            return result;
+        }
     }
-}
+
+        
+    }
+

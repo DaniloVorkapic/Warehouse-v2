@@ -21,6 +21,7 @@ namespace WarehouseWeb.Model
         public List<CustomerRole> CustomerRoleList { get; set; }
         public CustomerType CustomerType { get; set; }
         public long? CompanyId { get; set; }
+       
         public Company Company { get; set; }
     }
 }

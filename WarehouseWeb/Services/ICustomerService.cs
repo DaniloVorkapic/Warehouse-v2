@@ -11,7 +11,7 @@ namespace WarehouseWeb.Services
         Task<Result> GetAllCustomers();
         Task<Result> GetCustomerById(long id);
         Task<Result> AddCustomer(CustomerContract cc);
-        Task<Result> UpdateCustomer(long id, CustomerContract cc);
+        Task<Result> UpdateCustomer( CustomerContract cc);
         Task<Result> DeleteCustomer(long id);
     }
 }

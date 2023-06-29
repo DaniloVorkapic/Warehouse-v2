@@ -9,8 +9,8 @@ namespace WarehouseWeb.Repositories
     {
        Task<IEnumerable<T>> GetAll();
        Task<T> GetById(long id);
-       Task<T> AddEntity(T entity);
-       Task<T> UpdateEntity(long id,T entity);
+       Task<bool> AddEntity(T entity);
+       Task<bool> UpdateEntity(T entity);
        Task<bool> Delete(T entity);
        void DeletAll(List<T> entities);
        IQueryable<T> GetQueryable<T>() where T : class;

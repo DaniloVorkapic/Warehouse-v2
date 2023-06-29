@@ -12,7 +12,7 @@ namespace WarehouseWeb.Services
         Task<Result> GetAllOrderItems();
         Task<Result> GetOrderItemById(long id);
         Task<Result> AddOrderItem(OrderItemContract oic);
-        Task<Result> UpdateOrderItem(long id, OrderItemContract oi);
+        Task<Result> UpdateOrderItem(OrderItemContract oi);
         Task<Result> DeleteOrderItem(long id);
     }
 }
